@@ -13,6 +13,8 @@ A Chrome extension designed to streamline the creation of XPath conditional stat
 - 🔧 Advanced field extraction with retry mechanisms
 - 💾 Cache management functionality
 - 🔢 Support for comma-separated numeric values
+- 📊 Dynamic Table Row Generation for complex data structures
+- 🔀 Advanced XPath support for nested data
 
 ## Installation
 
@@ -35,6 +37,14 @@ A Chrome extension designed to streamline the creation of XPath conditional stat
 - Use the file upload feature to load custom XML or TXT files
 - Field names will automatically populate the dropdown
 - Node values will be inserted into the value field
+
+### Table Row Generation
+- Access through the Advanced tab
+- Select "Table Row" from the Type dropdown
+- Choose a parent node to generate dynamic table structures
+- Automatically creates placeholders for nested data
+- Perfect for repeating data structures like case management systems
+- Supports complex nested XML data
 
 ## Technical Details
 
@@ -65,6 +75,7 @@ A Chrome extension designed to streamline the creation of XPath conditional stat
 ├── styles.css         # Styling
 ├── docs/
 │   ├── blueprint.md   # Project documentation
+│   ├── features/     # Feature documentation
 │   ├── img/          # Images and assets
 │   └── code/         # Version history
 └── icons/            # Extension icons
@@ -82,6 +93,8 @@ A Chrome extension designed to streamline the creation of XPath conditional stat
 - Performance optimizations
 - Extended numeric operation support
 - Advanced error handling
+- Additional table template patterns
+- Enhanced XML structure visualization
 
 ## Contributing
 

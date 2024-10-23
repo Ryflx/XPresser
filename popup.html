@@ -1,76 +1,121 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <meta charset="UTF-8">
-    <title>CLM DocGen Merge Tag Generator</title>
-    <link rel="stylesheet" href="styles.css">
+    <title>Logic CLM</title>
+    <link rel="stylesheet" type="text/css" href="styles.css">
 </head>
 <body>
-    <div class="container">
-        <img src="docs/img/logo.svg" alt="Logic CLM Logo" width="120" height="24" style="display: block; margin-bottom: 15px;">
-        <h2>CLM DocGen Merge Tag Generator</h2>
-        <div id="status">Loading...</div>
+    <img src="docs/img/logo.svg" alt="Logic CLM Logo" width="120" height="24" style="display: block; margin-bottom: 15px;">
+    
+    <div id="status">Loading...</div>
+    
+    <div class="checkbox-group">
+        <label class="checkbox-label">
+            <input type="checkbox" id="showXmlUpload">
+            Upload my own XML
+        </label>
+    </div>
 
-        <div class="checkbox-group">
-            <label class="checkbox-label">
-                <input type="checkbox" id="showXmlUpload">
-                Upload my own XML
-            </label>
-        </div>
-
-        <div id="xmlUploadSection" class="xml-upload-section hidden">
-            <label>Upload XML Structure:</label>
-            <div class="upload-container">
-                <input type="file" id="xmlUpload" accept=".xml,.txt" class="file-input">
-                <button id="uploadButton" class="secondary-button">Upload</button>
-            </div>
-        </div>
-
-        <div class="input-group">
-            <label for="field">Field:</label>
-            <select id="field">
-                <option value="">Loading fields...</option>
-            </select>
-        </div>
-
-        <div class="input-group">
-            <label for="operator">Operator:</label>
-            <select id="operator">
-                <option value="hasValueOf">Has Value Of</option>
-                <option value="doesNotHaveValueOf">Does Not Have Value Of</option>
-                <option value="hasAnyValue">Has Any Value</option>
-                <option value="hasNoValue">Has No Value</option>
-                <option value="multipleValues">Has Multiple Values</option>
-                <option value="dateEquals">Date Equals</option>
-                <option value="dateNotEquals">Date Not Equals</option>
-                <option value="checkboxChecked">Checkbox is Checked</option>
-                <option value="checkboxUnchecked">Checkbox is Unchecked</option>
-                <option value="numericEquals">Numeric Equals</option>
-                <option value="numericGreaterThan">Numeric Greater Than</option>
-                <option value="numericLessThan">Numeric Less Than</option>
-                <option value="SuppressListItem">Suppress List Item</option>
-            </select>
-        </div>
-
-        <div class="input-group">
-            <label for="value">Value:</label>
-            <input type="text" id="value">
-        </div>
-
-        <div class="input-group">
-            <label for="output">Generated Statement:</label>
-            <textarea id="output" readonly></textarea>
-        </div>
-
-        <div class="button-group">
-            <div class="button-group-top">
-                <button id="generate" class="primary-button">Generate</button>
-                <button id="copy" class="secondary-button">Copy to Clipboard</button>
-                <button id="loadCache" class="secondary-button">Load from Cache</button>
-            </div>
-            <button id="clearCache" class="secondary-button">Clear Cache</button>
+    <div id="xmlUploadSection" class="xml-upload-section hidden">
+        <div>Upload XML Structure:</div>
+        <div class="upload-container">
+            <input type="file" id="xmlUpload" class="file-input" accept=".xml">
+            <button id="uploadButton">Upload</button>
         </div>
     </div>
+
+    <div class="tab-container">
+        <div class="tab-buttons">
+            <button class="tab-button active" data-tab="simple">Simple</button>
+            <button class="tab-button" data-tab="advanced">Advanced</button>
+        </div>
+
+        <div id="simple-tab" class="tab-content active">
+            <div class="input-group">
+                <label for="field">Field:</label>
+                <select id="field">
+                    <option value="">Loading fields...</option>
+                </select>
+            </div>
+
+            <div class="input-group">
+                <label for="operator">Operator:</label>
+                <select id="operator">
+                    <option value="hasValueOf">Has Value Of</option>
+                    <option value="doesNotHaveValueOf">Does Not Have Value Of</option>
+                    <option value="hasAnyValue">Has Any Value</option>
+                    <option value="hasNoValue">Has No Value</option>
+                    <option value="multipleValues">Has Multiple Values</option>
+                    <option value="dateEquals">Date Equals</option>
+                    <option value="dateNotEquals">Date Not Equals</option>
+                    <option value="checkboxChecked">Checkbox is Checked</option>
+                    <option value="checkboxUnchecked">Checkbox is Unchecked</option>
+                    <option value="numericEquals">Numeric Equals</option>
+                    <option value="numericGreaterThan">Numeric Greater Than</option>
+                    <option value="numericLessThan">Numeric Less Than</option>
+                    <option value="suppressListItem">Suppress List Item</option>
+                </select>
+            </div>
+
+            <div class="input-group">
+                <label for="value">Value:</label>
+                <input type="text" id="value">
+            </div>
+
+            <div class="input-group">
+                <label for="output">Generated Statement:</label>
+                <textarea id="output" readonly></textarea>
+            </div>
+        </div>
+
+        <div id="advanced-tab" class="tab-content">
+            <div class="input-group">
+                <label for="advanced-operator">Type:</label>
+                <select id="advanced-operator">
+                    <option value="customXPath">Custom XPath</option>
+                    <option value="tableRow">Table Row</option>
+                </select>
+            </div>
+
+            <div id="custom-xpath-section">
+                <div class="input-group">
+                    <label for="advanced-field">Field:</label>
+                    <select id="advanced-field">
+                        <option value="">Loading fields...</option>
+                    </select>
+                </div>
+
+                <div class="input-group">
+                    <label for="advanced-xpath">XPath Expression:</label>
+                    <textarea id="advanced-xpath"></textarea>
+                </div>
+            </div>
+
+            <div id="table-row-section" class="hidden">
+                <div class="input-group">
+                    <label for="parent-node">Parent Node:</label>
+                    <select id="parent-node">
+                        <option value="">-- Select Parent Node --</option>
+                    </select>
+                </div>
+
+                <div class="input-group">
+                    <label for="table-preview">Table Preview:</label>
+                    <textarea id="table-preview" readonly></textarea>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="button-group">
+        <div class="button-group-top">
+            <button id="generate" class="primary-button">Generate</button>
+            <button id="copy" class="secondary-button">Copy to Clipboard</button>
+            <button id="loadCache" class="secondary-button">Load from Cache</button>
+        </div>
+        <button id="clearCache" class="secondary-button">Clear Cache</button>
+    </div>
+
     <script src="popup.js"></script>
 </body>
 </html>
