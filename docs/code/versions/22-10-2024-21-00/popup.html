@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>CLM DocGen Merge Tag Generator</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <img src="docs/img/logo.svg" alt="Logic CLM Logo" width="120" height="24" style="display: block; margin-bottom: 15px;">
+        <h2>CLM DocGen Merge Tag Generator</h2>
+        <div id="status">Loading...</div>
+
+        <div class="checkbox-group">
+            <label class="checkbox-label">
+                <input type="checkbox" id="showXmlUpload">
+                Upload my own XML
+            </label>
+        </div>
+
+        <div id="xmlUploadSection" class="xml-upload-section hidden">
+            <label>Upload XML Structure:</label>
+            <div class="upload-container">
+                <input type="file" id="xmlUpload" accept=".xml,.txt" class="file-input">
+                <button id="uploadButton" class="secondary-button">Upload</button>
+            </div>
+        </div>
+
+        <div class="input-group">
+            <label for="field">Field:</label>
+            <select id="field">
+                <option value="">Loading fields...</option>
+            </select>
+        </div>
+
+        <div class="input-group">
+            <label for="operator">Operator:</label>
+            <select id="operator">
+                <option value="hasValueOf">Has Value Of</option>
+                <option value="doesNotHaveValueOf">Does Not Have Value Of</option>
+                <option value="hasAnyValue">Has Any Value</option>
+                <option value="hasNoValue">Has No Value</option>
+                <option value="multipleValues">Has Multiple Values</option>
+                <option value="dateEquals">Date Equals</option>
+                <option value="dateNotEquals">Date Not Equals</option>
+                <option value="checkboxChecked">Checkbox is Checked</option>
+                <option value="checkboxUnchecked">Checkbox is Unchecked</option>
+                <option value="numericEquals">Numeric Equals</option>
+                <option value="numericGreaterThan">Numeric Greater Than</option>
+                <option value="numericLessThan">Numeric Less Than</option>
+                <option value="SuppressListItem">Suppress List Item</option>
+            </select>
+        </div>
+
+        <div class="input-group">
+            <label for="value">Value:</label>
+            <input type="text" id="value">
+        </div>
+
+        <div class="input-group">
+            <label for="output">Generated Statement:</label>
+            <textarea id="output" readonly></textarea>
+        </div>
+
+        <div class="button-group">
+            <div class="button-group-top">
+                <button id="generate" class="primary-button">Generate</button>
+                <button id="copy" class="secondary-button">Copy to Clipboard</button>
+                <button id="loadCache" class="secondary-button">Load from Cache</button>
+            </div>
+            <button id="clearCache" class="secondary-button">Clear Cache</button>
+        </div>
+    </div>
+    <script src="popup.js"></script>
+</body>
+</html>
