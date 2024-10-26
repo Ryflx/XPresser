@@ -12,21 +12,16 @@
     <div class="checkbox-group">
         <label class="checkbox-label">
             <input type="checkbox" id="showXmlUpload">
-            Load XML Content
+            Upload my own XML
         </label>
     </div>
 
-    <div class="xml-input-section" id="xmlInputSection">
-        <div class="input-group">
-            <label for="xmlInput">Paste XML Content:</label>
-            <textarea 
-                id="xmlInput" 
-                class="xml-textarea" 
-                placeholder="Paste your XML content here..."
-                rows="8"
-            ></textarea>
+    <div id="xmlUploadSection" class="xml-upload-section hidden">
+        <div>Upload XML Structure:</div>
+        <div class="upload-container">
+            <input type="file" id="xmlUpload" class="file-input" accept=".xml">
+            <button id="uploadButton">Upload</button>
         </div>
-        <button id="processXmlButton" class="primary-button">Process XML</button>
     </div>
 
     <div class="tab-container">

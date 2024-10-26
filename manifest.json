@@ -6,8 +6,13 @@
   "permissions": [
     "activeTab",
     "scripting",
-    "storage"
+    "storage",
+    "fileBrowserHandler",
+    "background"
   ],
+  "background": {
+    "service_worker": "background.js"
+  },
   "action": {
     "default_popup": "popup.html",
     "default_icon": {
@@ -17,6 +22,16 @@
       "128": "icons/icon128.png"
     }
   },
+  "file_browser_handlers": [
+    {
+      "id": "upload_xml",
+      "default_title": "Upload XML File",
+      "file_filters": [
+        "text/xml",
+        ".xml"
+      ]
+    }
+  ],
   "content_scripts": [
     {
       "matches": ["https://uatna11.springcm.com/*"],
@@ -28,9 +43,5 @@
     "32": "icons/icon32.png",
     "48": "icons/icon48.png",
     "128": "icons/icon128.png"
-  },
-  "web_accessible_resources": [{
-    "resources": ["docs/img/logo.svg"],
-    "matches": ["<all_urls>"]
-  }]
+  }
 }

@@ -22,6 +22,12 @@ The content script listens for messages from the popup and performs actions such
 - **Improved Field Extraction**: Enhanced the field extraction process in content.js to be more robust and reliable. Added a retry mechanism and more detailed logging for better diagnostics.
 - **Loading Message Timeout**: Added a timeout mechanism in popup.js to clear the "Loading fields..." message after a short period if fields are not loaded successfully, improving user experience.
 - **Handling Comma-separated Numbers**: Updated the generateStatement function to handle comma-separated numbers and other string inputs in the Value text box. This allows for more flexible input formats, especially for numeric fields.
+- **TableRow Feature (23-10-2024)**: Added functionality to generate dynamic table structures:
+  - Added TableRow option in the advanced tab
+  - Implemented parent node selection for container elements
+  - Added table preview functionality
+  - Generates table structure with proper template syntax for dynamic data
+  - Updated UI to toggle between custom XPath and TableRow sections
 
 ## Notes
 
@@ -30,6 +36,7 @@ The content script listens for messages from the popup and performs actions such
 - The field extraction process now attempts multiple methods to retrieve fields, improving reliability across different page structures.
 - The popup now provides better feedback to the user when field loading is delayed or unsuccessful.
 - The Value text box now accepts comma-separated numbers, which are automatically parsed and handled correctly for numeric operations.
+- When using the TableRow feature, select container nodes as parent nodes to generate proper table structures.
 
 ## Future Updates
 
@@ -38,3 +45,4 @@ The content script listens for messages from the popup and performs actions such
 - Explore ways to further optimize field loading and improve performance on slower connections or complex pages.
 - Enhance error handling and user feedback for various input formats in the Value text box.
 - Consider adding support for more complex numeric operations and comparisons.
+- Consider adding customization options for table structures (column headers, styling)

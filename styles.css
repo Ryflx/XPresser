@@ -7,54 +7,81 @@ body {
     background-color: white;
 }
 
+/* Tab styles */
+.tab-container {
+    margin: 15px 0;
+}
+
+.tab-buttons {
+    display: flex;
+    gap: 2px;
+    margin-bottom: 15px;
+    border-bottom: 1px solid #ddd;
+}
+
+.tab-button {
+    padding: 8px 16px;
+    border: 1px solid #ddd;
+    border-bottom: none;
+    border-radius: 4px 4px 0 0;
+    background-color: #f8f9fa;
+    color: #666;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.2s;
+}
+
+.tab-button:hover {
+    background-color: #e9ecef;
+}
+
+.tab-button.active {
+    background-color: white;
+    color: #2196F3;
+    border-bottom: 2px solid #2196F3;
+    margin-bottom: -1px;
+}
+
+.tab-content {
+    display: none;
+    padding: 15px 0;
+}
+
+.tab-content.active {
+    display: block;
+}
+
 /* XML Upload Section */
-.xml-upload-section {
+/* Replace the XML upload section styles with these */
+.hidden {
+    display: none;
+}
+
+.xml-input-section {
     background-color: #f8f9fa;
     padding: 12px;
     border-radius: 6px;
     border: 1px solid #e0e0e0;
     margin: 10px 0;
-    max-width: 290px; /* Adjusted width */
+    transition: all 0.3s ease;
 }
 
-.xml-upload-section.hidden {
-    display: none;
-}
-
-.upload-container {
-    display: flex;
-    gap: 6px; /* Reduced gap */
-    align-items: center;
+.xml-textarea {
     width: 100%;
-    max-width: 300px; /* Adjusted width */
-}
-
-.file-input {
-    flex: 1;
-    min-width: 0; /* Allows shrinking */
-    padding: 6px; /* Reduced padding */
+    min-height: 150px;
+    padding: 8px;
     border: 1px solid #ddd;
     border-radius: 4px;
+    font-family: monospace;
     font-size: 13px;
-    color: #333;
+    resize: vertical;
+    margin-bottom: 10px;
 }
 
-#uploadButton {
-    padding: 6px 10px; /* Reduced padding */
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    font-size: 13px;
-    color: #333;
-    background-color: #f0f0f0;
-    cursor: pointer;
-    white-space: nowrap;
-    flex-shrink: 0; /* Prevents button from shrinking */
-    transition: background-color 0.2s;
+#processXmlButton {
+    width: 100%;
 }
 
-#uploadButton:hover {
-    background-color: #e0e0e0;
-}
 /* Checkbox styling */
 .checkbox-group {
     margin: 15px 0;
@@ -91,7 +118,7 @@ body {
     color: #333;
 }
 
-/* Rest of the styles for other elements */
+/* Form elements */
 select, 
 input[type="text"],
 textarea {
@@ -108,9 +135,32 @@ select {
 }
 
 textarea {
-    min-height: 80px;
+    min-height: 40px;
     resize: vertical;
     font-family: monospace;
+}
+
+/* Advanced tab specific */
+#advanced-xpath {
+    min-height: 100px;
+    font-family: monospace;
+    font-size: 13px;
+}
+
+/* Table Row Section */
+#table-row-section {
+    margin-top: 15px;
+}
+
+#table-row-section.hidden {
+    display: none;
+}
+
+#table-preview {
+    min-height: 120px;
+    font-family: monospace;
+    font-size: 13px;
+    background-color: #f8f9fa;
 }
 
 .button-group {
@@ -163,5 +213,10 @@ textarea {
 
 #status.fade {
     opacity: 0;
-    visibility: hidden;  /* Hide it completely after fade */
+    visibility: hidden;
+}
+
+/* Custom XPath Section */
+#custom-xpath-section.hidden {
+    display: none;
 }
