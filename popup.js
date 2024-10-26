@@ -46,6 +46,15 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
+    if (clearCacheButton) {
+        clearCacheButton.addEventListener('click', () => {
+            console.log('Clear cache clicked'); // Debug log
+            clearAllCache();
+        });
+    } else {
+        console.error('Clear cache button not found!');
+    }
+
     const processXmlButton = document.getElementById('processXmlButton');
     processXmlButton.addEventListener('click', function() {
         handleXMLInput();
@@ -702,27 +711,47 @@ document.head.appendChild(style);
         }
     }
 
-    function clearCache() {
-        log('Clearing fields cache...');
-        updateStatus('Clearing cache...');
+    function clearAllCache() {
+        console.log('Starting cache clear'); // Debug log
         
-        chrome.storage.local.remove('fieldsCache', function() {
-            if (chrome.runtime.lastError) {
-                log('Error clearing cache:', chrome.runtime.lastError);
-                showError('Failed to clear cache');
-                return;
+        // Update UI first
+        const fieldSelect = document.getElementById('field');
+        const advancedFieldSelect = document.getElementById('advanced-field');
+        const xmlInput = document.getElementById('xmlInput');
+        const parentNodeSelect = document.getElementById('parent-node');
+        const tablePreview = document.getElementById('table-preview');
+        const statusElement = document.getElementById('status');
+        
+        // Clear dropdowns
+        if (fieldSelect) fieldSelect.innerHTML = '<option value="">-- Select Field --</option>';
+        if (advancedFieldSelect) advancedFieldSelect.innerHTML = '<option value="">-- Select Field --</option>';
+        
+        // Clear XML input
+        if (xmlInput) xmlInput.value = '';
+        
+        // Clear parent node select
+        if (parentNodeSelect) parentNodeSelect.innerHTML = '<option value="">-- Select Parent Node --</option>';
+        
+        // Clear table preview
+        if (tablePreview) tablePreview.value = '';
+        
+        // Clear storage
+        chrome.storage.local.clear(() => {
+            console.log('Storage cleared'); // Debug log
+            
+            // Reset fields array
+            window.fields = [];
+            
+            // Show status
+            if (statusElement) {
+                statusElement.textContent = 'Cache cleared successfully';
+                statusElement.classList.remove('hidden');
+                
+                // Hide status after 3 seconds
+                setTimeout(() => {
+                    statusElement.classList.add('hidden');
+                }, 3000);
             }
-            
-            // Clear the fields array
-            fields = [];
-            
-            // Reset dropdowns
-            [fieldSelect, advancedFieldSelect].forEach(select => {
-                select.innerHTML = '<option value="">-- Select Field --</option>';
-            });
-            
-            log('Cache cleared successfully');
-            updateStatus('Cache cleared successfully');
         });
     }
 
