@@ -34,6 +34,32 @@ document.addEventListener('DOMContentLoaded', function() {
     const xmlInputSection = document.getElementById('xmlInputSection');
     xmlInputSection.classList.add('hidden');
 
+
+    function updateStatus(message) {
+        log('Status update:', message);
+        
+        // Get status element
+        const statusElement = document.getElementById('status');
+        if (!statusElement) {
+            log('Status element not found');
+            return;
+        }
+        
+        // Clear any existing timeout
+        if (statusTimeout) {
+            clearTimeout(statusTimeout);
+        }
+        
+        // Reset state
+        statusElement.textContent = message;
+        statusElement.classList.remove('hidden');
+        
+        // Set new timeout
+        statusTimeout = setTimeout(() => {
+            statusElement.classList.add('hidden');
+        }, 3000); // Collapse and fade out after 3 seconds
+    }
+
     showXmlUploadCheckbox.addEventListener('change', function() {
         xmlInputSection.classList.toggle('hidden', !this.checked);
         
@@ -123,23 +149,7 @@ document.head.appendChild(style);
 
     // Add fade out functionality for status element
     let statusTimeout;
-    function updateStatus(message) {
-        log('Status update:', message);
-        
-        // Clear any existing timeout
-        if (statusTimeout) {
-            clearTimeout(statusTimeout);
-        }
-        
-        // Reset state
-        statusElement.textContent = message;
-        statusElement.classList.remove('hidden');
-        
-        // Set new timeout
-        statusTimeout = setTimeout(() => {
-            statusElement.classList.add('hidden');
-        }, 3000); // Collapse and fade out after 3 seconds
-    }
+   
 
     // Tab elements
     const tabButtons = document.querySelectorAll('.tab-button');
@@ -668,7 +678,6 @@ document.head.appendChild(style);
     }
  
     // Event Listeners
-    uploadButton.addEventListener('click', handleXMLUpload);
     generateButton.addEventListener('click', generateStatement);
     copyButton.addEventListener('click', copyToClipboard);
     loadCacheButton.addEventListener('click', loadFieldsFromCache);
@@ -676,6 +685,45 @@ document.head.appendChild(style);
     
     // Add field select change handlers
     fieldSelect.addEventListener('change', handleFieldChange);
+
+    // Handle field selection and populate value textbox
+    fieldSelect.addEventListener('change', function() {
+        const selectedOption = fieldSelect.options[fieldSelect.selectedIndex];
+
+        // Check if selected option has a data-value attribute
+        if (selectedOption && selectedOption.dataset.value) {
+            // Set the valueInput with the data-value attribute of the selected option
+            valueInput.value = selectedOption.dataset.value;
+            
+            // Log for debugging
+            log('Auto-populated value from field data:', {
+                field: selectedOption.dataset.nodename,
+                value: selectedOption.dataset.value
+            });
+        } else {
+            // Clear the valueInput if no value is available
+            valueInput.value = '';
+            log('No value found for selected field. Value input cleared.');
+        }
+    });
+
+
+    // Field selection change handler for advanced tab
+    advancedFieldSelect.addEventListener('change', function() {
+    const selectedOption = this.options[this.selectedIndex];
+    if (selectedOption && selectedOption.dataset.path) {
+        // Pre-populate the XPath textarea with a template using the stored path
+        advancedXPathInput.value = `${selectedOption.dataset.path}[custom_condition]`;
+        log('Pre-populated XPath template:', {
+            field: selectedOption.dataset.nodename,
+            path: selectedOption.dataset.path
+        });
+    } else {
+        advancedXPathInput.value = '';
+    }
+    });
+
+
     advancedFieldSelect.addEventListener('change', handleAdvancedFieldChange);
 
     showXmlUploadCheckbox.addEventListener('change', function() {
@@ -847,11 +895,22 @@ document.head.appendChild(style);
             defaultOption.textContent = '-- Select Field --';
             select.appendChild(defaultOption);
             
-            // Add fields with values in display
+            // Add fields with data attributes
             fieldsData.forEach(field => {
                 const option = document.createElement('option');
                 option.value = field.actualValue;      // Full path for XPath
-                option.textContent = field.displayValue; // //NodeName (value)
+                option.textContent = field.displayValue; // Display text
+                
+                // Set data attributes
+                option.dataset.value = field.nodeValue;
+                option.dataset.nodename = field.nodeName;
+                
+                log('Creating option:', {
+                    text: option.textContent,
+                    value: option.value,
+                    dataValue: option.dataset.value
+                });
+                
                 select.appendChild(option);
             });
         });
@@ -859,6 +918,8 @@ document.head.appendChild(style);
         log('Dropdowns populated with fields:', fieldsData.length);
         updateStatus(`Successfully loaded ${fieldsData.length} fields`);
     }
+
+
 
     function showError(message) {
         log('Error:', message);
@@ -890,65 +951,81 @@ document.head.appendChild(style);
     
         try {
             if (currentTab === 'simple') {
-                const selectedField = fieldSelect.value;
+                const selectedOption = fieldSelect.options[fieldSelect.selectedIndex];
+                const selectedField = selectedOption.value;
+                const fieldValue = selectedOption.dataset.value;
+                const nodeName = selectedOption.dataset.nodename;
                 const operator = operatorSelect.value;
-                const value = valueInput.value;
+                let value = valueInput.value;
+
+                let simplifiedPath = selectedField.split('/').pop();
     
                 if (!selectedField) {
                     showError('Please select a field');
                     return;
                 }
     
-                // Extract just the node name from the full path
-                const nodeName = selectedField.split('/').pop();
-                const simpleNodePath = `//${nodeName}`;
+                // If valueInput is empty, use the stored field value
+                if (!value && fieldValue) {
+                    value = fieldValue;
+                    log('Using stored field value:', value);
+                }
+    
+                log('Generating statement with:', {
+                    field: selectedField,
+                    nodeName: nodeName,
+                    value: fieldValue,
+                    operator: operator,
+                    inputValue: value
+                });
     
                 switch (operator) {
                     case 'hasValueOf':
-                        statement = `<# <Conditional Test="${simpleNodePath}[text() = '${value}']" /> #>`;
+                        statement = `<# <Conditional Test="//${simplifiedPath}[text() = '${value}']" /> #>`;
                         break;
                     case 'doesNotHaveValueOf':
-                        statement = `<# <Conditional Test="not(${simpleNodePath}[text() = '${value}'])" /> #>`;
+                        statement = `<# <Conditional Test="not(//${simplifiedPath}[text() = '${value}'])" /> #>`;
                         break;
                     case 'hasAnyValue':
-                        statement = `<# <Conditional Test="${simpleNodePath}" /> #>`;
+                        statement = `<# <Conditional Test="${simplifiedPath}" /> #>`;
                         break;
                     case 'hasNoValue':
-                        statement = `<# <Conditional Test="not(${simpleNodePath})" /> #>`;
+                        statement = `<# <Conditional Test="not(//${selectedField})" /> #>`;
                         break;
                     case 'multipleValues':
                         const values = value.split(',').map(v => v.trim());
-                        statement = `<# <Conditional Test="${simpleNodePath}[${values.map(v => `text() = '${v}'`).join(' or ')}]" /> #>`;
+                        statement = `<# <Conditional Test="//${selectedField}[${values.map(v => `text() = '${v}'`).join(' or ')}]" /> #>`;
                         break;
                     case 'dateEquals':
                         const formattedDate = value.replace(/[^0-9]/g, '');
-                        statement = `<# <Conditional Test="//${nodeName}_unformatted[number(substring-before(translate(text(),'-',''),'T')) = ${formattedDate}]" /> #>`;
+                        statement = `<# <Conditional Test="//${selectedField}_unformatted[number(substring-before(translate(text(),'-',''),'T')) = ${formattedDate}]" /> #>`;
                         break;
                     case 'dateNotEquals':
                         const formattedDateNot = value.replace(/[^0-9]/g, '');
-                        statement = `<# <Conditional Test="not(//${nodeName}_unformatted[number(substring-before(translate(text(),'-',''),'T')) = ${formattedDateNot}])" /> #>`;
+                        statement = `<# <Conditional Test="not(//${selectedField}_unformatted[number(substring-before(translate(text(),'-',''),'T')) = ${formattedDateNot}])" /> #>`;
                         break;
                     case 'checkboxChecked':
-                        statement = `<# <Conditional Test="${simpleNodePath}/text()" /> #>`;
+                        statement = `<# <Conditional Test="//${selectedField}/text()" /> #>`;
                         break;
                     case 'checkboxUnchecked':
-                        statement = `<# <Conditional Test="not(${simpleNodePath}/text())" /> #>`;
+                        statement = `<# <Conditional Test="not(//${selectedField}/text())" /> #>`;
                         break;
                     case 'numericEquals':
                     case 'numericGreaterThan':
                     case 'numericLessThan':
                         const numericValue = parseNumericInput(value);
-                        const numericOperator = operator === 'numericEquals' ? '=' : operator === 'numericGreaterThan' ? '>' : '<';
-                        statement = `<# <Conditional Test="number(${simpleNodePath}) ${numericOperator} ${numericValue}" /> #>`;
+                        const numericOperator = operator === 'numericEquals' ? '=' :
+                                              operator === 'numericGreaterThan' ? '>' : '<';
+                        statement = `<# <Conditional Test="number(//${selectedField}) ${numericOperator} ${numericValue}" /> #>`;
                         break;
                     case 'SuppressListItem':
-                        statement = `<# <Conditional Test="${simpleNodePath}[contains(text(), '${value}')]" /> #>`;
+                        statement = `<# <Conditional Test="//${selectedField}[contains(text(), '${value}')]" /> #>`;
                         break;
                     default:
                         throw new Error('Invalid operator selected');
                 }
             } else {
-                // Advanced tab
+                // Advanced tab handling remains the same
                 const operatorType = advancedOperatorSelect.value;
                 
                 if (operatorType === 'tableRow') {
@@ -965,11 +1042,12 @@ document.head.appendChild(style);
                         showError('Please enter an XPath expression');
                         return;
                     }
-                    // For custom XPath, we'll keep whatever the user entered as-is
                     statement = `<# <Conditional Test="${xpath}" /> #>`;
                 }
             }
-    
+
+
+
             if (statement) {
                 outputArea.value = statement;
                 log('Generated statement:', statement);
@@ -1136,77 +1214,53 @@ document.head.appendChild(style);
         let allFields = [];
         
         function traverseXML(node, parentPath = '') {
-            if (node.nodeType === 3 || node.nodeType === 4) return;
+            if (node.nodeType !== 1) return; // Skip if not an element node
             
-            if (node.nodeType === 1) { // Element node
-                const nodeName = node.nodeName;
-                
-                // Get the node's text value
-                let nodeValue = Array.from(node.childNodes)
-                    .filter(child => child.nodeType === 3)
-                    .map(child => child.textContent.trim())
-                    .join('')
-                    .trim();
-                
-                // Get CDATA if no direct text
-                if (!nodeValue) {
-                    nodeValue = Array.from(node.childNodes)
-                        .filter(child => child.nodeType === 4)
-                        .map(child => child.textContent.trim())
-                        .join('')
-                        .trim();
+            const nodeName = node.nodeName;
+            
+            // Get node value - combine text and CDATA content
+            let nodeValue = '';
+            for (let child of node.childNodes) {
+                if (child.nodeType === 3 || child.nodeType === 4) { // Text or CDATA
+                    nodeValue += child.nodeValue.trim();
                 }
+            }
+            nodeValue = nodeValue.trim(); // Final trim of combined value
+            
+            const fullPath = parentPath ? `${parentPath}/${nodeName}` : nodeName;
+            
+            if (nodeValue && 
+                !nodeName.endsWith('_unformatted') && 
+                !nodeName.endsWith('_Id') &&
+                !nodeValue.includes('CDATA')) {
                 
-                // Check for key attribute
-                const keyAttribute = node.getAttribute('key');
-                if (keyAttribute) {
-                    nodeValue = keyAttribute;
-                }
+                // Create display value with truncation if needed
+                const displayValue = nodeValue.length > 47 
+                    ? `//${nodeName} (${nodeValue.substring(0, 47)}...)`
+                    : `//${nodeName} (${nodeValue})`;
                 
-                // Build the full path
-                const fullPath = parentPath ? `${parentPath}/${nodeName}` : nodeName;
+                log('Adding field:', {
+                    name: nodeName,
+                    value: nodeValue,
+                    path: fullPath
+                });
                 
-                // Only include nodes that have a value and aren't special nodes
-                if (nodeValue && 
-                    !nodeName.endsWith('_unformatted') && 
-                    !nodeName.endsWith('_Id') &&
-                    !nodeValue.includes('CDATA')) {
-                    
-                    // Create display value with the node value in brackets
-                    const displayWithValue = nodeValue.length > 50 
-                        ? `//${nodeName} (${nodeValue.substring(0, 47)}...)`  // Truncate long values
-                        : `//${nodeName} (${nodeValue})`;
-                    
-                    allFields.push({
-                        displayValue: displayWithValue,  // Node name with value in brackets
-                        actualValue: `//${fullPath}`,    // Full path for XPath
-                        nodeValue: nodeValue
-                    });
-                    
-                    log('Added field:', {
-                        display: displayWithValue,
-                        path: `//${fullPath}`,
-                        value: nodeValue
-                    });
-                }
-                
-                // Process child nodes
-                Array.from(node.children).forEach(child => {
-                    traverseXML(child, fullPath);
+                allFields.push({
+                    displayValue: displayValue,
+                    actualValue: `//${fullPath}`,
+                    nodeValue: nodeValue,
+                    nodeName: nodeName
                 });
             }
+            
+            // Process child nodes
+            Array.from(node.children).forEach(child => {
+                traverseXML(child, fullPath);
+            });
         }
         
         traverseXML(xmlDoc.documentElement);
-        
-        // Sort fields alphabetically by the base node name (without the value in brackets)
-        allFields.sort((a, b) => {
-            const aName = a.displayValue.split(' (')[0];
-            const bName = b.displayValue.split(' (')[0];
-            return aName.toLowerCase().localeCompare(bName.toLowerCase());
-        });
-        
-        return allFields;
+        return allFields.sort((a, b) => a.nodeName.toLowerCase().localeCompare(b.nodeName.toLowerCase()));
     }
 
     function isContainerNode(field) {
